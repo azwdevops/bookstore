@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import API from "../shared/axios";
 import BackButton from "../components/BackButton";
 import Spinner from "../components/Spinner";
 import { useSnackbar } from "notistack";
 
-const EditBook = () => {
+const CreateBook = () => {
   const [bookData, setBookData] = useState({
     title: "",
     author: "",
@@ -13,22 +13,7 @@ const EditBook = () => {
   });
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const { id } = useParams();
-
   const { enqueueSnackbar } = useSnackbar();
-
-  useEffect(() => {
-    setLoading(true);
-    API.get(`/books/${id}`)
-      .then((res) => {
-        setBookData(res?.data);
-      })
-      .catch((err) => {
-        console.log(err);
-        window.alert("An error occurred");
-      })
-      .finally(() => setLoading(false));
-  }, [id]);
 
   const handleChange = (e) => {
     setBookData({ ...bookData, [e.target.name]: e.target.value });
@@ -37,19 +22,15 @@ const EditBook = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    await API.put(`/books/${id}`, { ...bookData })
+    await API.post("/books", { ...bookData })
       .then((res) => {
-        enqueueSnackbar("Book edited successfully", {
-          variant: "success",
-          anchorOrigin: { vertical: "top", horizontal: "right" },
-        });
+        enqueueSnackbar("Book created successfully", { variant: "success" });
+
         navigate("/");
       })
       .catch((err) => {
         console.log(err);
-        enqueueSnackbar("An error occurred", {
-          variant: "error",
-        });
+        enqueueSnackbar("Error occurred", { variant: "error" });
       })
       .finally(() => setLoading(false));
   };
@@ -57,7 +38,7 @@ const EditBook = () => {
   return (
     <form className="p-4" onSubmit={handleSubmit}>
       <BackButton />
-      <h1 className="text-3xl my-4">Edit Book</h1>
+      <h1 className="text-3xl my-4">Create Book</h1>
       {loading ? (
         <Spinner />
       ) : (
@@ -110,4 +91,4 @@ const EditBook = () => {
   );
 };
 
-export default EditBook;
+export default CreateBook;
